@@ -87,8 +87,6 @@ Vagrant.configure("2") do |config|
     lfs_source=/vagrant/lfs/10.0
     lfs_files=/vagrant/lfs/files
 
-    /vagrant/chapter.sh
-
     echo "export LFS=/mnt/lfs" > /etc/profile.d/lfs.sh
     source /etc/profile.d/lfs.sh
 
