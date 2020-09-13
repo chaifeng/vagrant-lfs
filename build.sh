@@ -6,6 +6,10 @@ function msg() {
     printf "[Vagrant LFS]: \e[32m$*\e[0m\n" >&2
 }
 
+function vagrant() {
+    caffeinate -sm vagrant "$@"
+}
+
 vmname="lfs-10.0"
 
 export LC_ALL=C LANG=C LANGUAGE=C
