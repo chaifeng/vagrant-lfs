@@ -3,7 +3,7 @@ set -euo pipefail
 set -x
 
 function msg() {
-    echo -e "[Vagrant LFS]: \e[32m$*\e[0m" >&2
+    printf "[Vagrant LFS]: \e[32m$*\e[0m\n" >&2
 }
 
 vmname="lfs-10.0"

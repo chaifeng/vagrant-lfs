@@ -74,10 +74,13 @@ Vagrant.configure("2") do |config|
 
     mk files
     pushd files
-    if [[ ! -f .done ]]; then
-       wget --continue -i ../wget-list
-       md5sum --check ../md5sums && touch .done
-    fi
+    until md5sum --check ../md5sums; do
+       md5sum --check ../md5sums | sed "/OK\$/d" | cut -d: -f1 | while read file; do
+            [[ -f "$file" ]] && rm -v "$file"
+            grep -F "/${file}" ../wget-list | xargs wget
+       done
+       sleep 5
+    done
     popd
 
     [[ -d 10.0 ]] || tar xf LFS-BOOK-10.0.tar.xz
