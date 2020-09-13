@@ -6,6 +6,7 @@ The [Linux From Scratch](https://www.linuxfromscratch) project released version 
 
 ## Prerequisites
 
+- macOS
 - Vagrant
 - VirtualBox
 
@@ -27,6 +28,7 @@ Linux From Scratch 刚刚发布了 10.0，与之前的版本相比，简化了�
 
 ## 需求
 
+- macOS
 - Vagrant
 - VirtualBox
 
