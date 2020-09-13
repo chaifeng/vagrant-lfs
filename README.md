@@ -1,4 +1,4 @@
-# Build Our own GNU/Linux From Scratch
+# Build Our Own GNU/Linux From Scratch
 
 ## Goal
 
@@ -15,7 +15,7 @@ The [Linux From Scratch](https://www.linuxfromscratch) project released version 
     cd vagrant-lfs
     ./build.sh
 
-It may take 5-15 hours to run. You will see a new VM up and run if everyting goes well.
+It may take 5-15 hours to run. You will see a new VM up and run if everyting goes well. You will find a disk file `lfs-disk-12G.vmdk` created in the project folder. This is the disk contains our own GNU/Linux.
 
 Good luck!
 
@@ -36,6 +36,6 @@ Linux From Scratch 刚刚发布了 10.0，与之前的版本相比，简化了�
     cd vagrant-lfs
     ./build.sh
 
-可能需要5-15小时的执行，在我的机器上大约5个小时。如果一切顺利，你会看到一个名为 `lfs-10.0` 的虚拟机运行起来了。
+可能需要5-15小时的执行，在我的机器上大约5个小时。如果一切顺利，你会看到一个名为 `lfs-10.0` 的虚拟机运行起来了。你会在项目目录中看到一个磁盘文件 `lfs-disk-12G.vmdk` 被创建出来了。这就是包含了我们自己的 GNU/Linux 的磁盘。
 
 祝好运！
