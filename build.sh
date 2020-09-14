@@ -7,7 +7,11 @@ function msg() {
 }
 
 function vagrant() {
-    caffeinate -sm vagrant "$@"
+    if hash caffeinate &> /dev/null; then
+        caffeinate -sm vagrant "$@"
+    else
+        command vagrant "$@"
+    fi
 }
 
 vmname="lfs-10.0"
