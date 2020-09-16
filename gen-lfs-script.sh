@@ -20,6 +20,9 @@ function script-filter() {
             true
             ;;
 
+        chapter02/hostreqs.html)
+            cat
+            ;;
         chapter04/creatingminlayout.html)
             echo 'if [[ "$UID" -ne 0 ]]; then sudo "$SHELL" -x "$0" "${current_chapter}"; exit; fi'
             cat
@@ -67,7 +70,7 @@ fi
                 -e "/^strip /s/\$/ || true/" \
                 -e "/^umount /s/^/: /" \
                 -e "/^tar /s/.\$/bin usr tools/" \
-                -e "/^tar /s,^,test -f \"\$HOME\\/lfs-temp-tools-10.0.tar.xz\" || ," \
+                -e "/^tar /s,^,ls \"\$HOME\"\\/lfs-temp-tools-10.0\*.tar.xz || ," \
                 -e "s/^\(strip\|tar\|test\) /sudo \\1 /"
             ;;
         chapter07/*)
@@ -107,7 +110,8 @@ fi
             ;;
         chapter09/symlinks.html)
             sed -e "/^udevadm /s/^/: /" \
-                -e "/^bash .\\+init-net-rules\\.sh/s,^,test -f /etc/udev/rules.d/70-persistent-net.rules || ,"
+                -e "/^bash .\\+init-net-rules\\.sh/s,^,test -f /etc/udev/rules.d/70-persistent-net.rules || ," \
+                -e "/83-duplicate_devs\\.rules/,/^EOF\$/s/^/# /"
             ;;
         chapter09/network.html)
             sed -e "s/192\\.168\\.1\\.1\$/192.168.56.1/" \
@@ -119,13 +123,37 @@ fi
                 -e "/<192.168.1.1>/s/^/# /" \
                 -e "s,<FQDN>,lfs.local," \
                 -e "s,<HOSTNAME>,lfs," \
-                -e "s,<lfs>,lfs.local,"
+                -e "s,<lfs>,lfs.local," \
+                -e "/^ln .\\+99-default\\.link/s,^,: ," \
+                -e "/10-ether0\\.link/,/^EOF\$/s/^/# /" \
+                -e "/10-eth-static\\.network/,/^EOF\$/s/^/# /" \
+                -e "/^cat .\\+\\/etc\\/resolv\\.conf/,/^EOF\$/s/^/# /" \
+                -e "s/<network-device-name>/eth0/" \
+                -e "s/<Your Domain Name>/lfs.local/" \
+                -e "/^<192.168.0.2>/s/\\[/#\\[/" \
+                -e "s/<192.168.0.2>/192.168.56.200/"
             ;;
         chapter09/usage.html)
             sed -e "/^\\(KEYMAP\\|FONT\\|LEGACY\\)/s/^/# /"
             ;;
         chapter09/profile.html)
             sed -e "s/<locale name>/en_US.UTF-8/" -e "s/^\\(export LANG\\)=.\\+/\\1=en_US.UTF-8/"
+            ;;
+        chapter09/clock.html)
+            sed -e "/set-timezone/s/TIMEZONE/UTC/" \
+                -e "/disable systemd-timesyncd/s/^/: /" \
+                -e "/^timedatectl /s/^/: /"
+            ;;
+        chapter09/console.html)
+            sed -e "s/^/# /"
+            ;;
+        chapter09/locale.html)
+            sed -e "s/<locale name>/en_US.UTF-8/" \
+                -e "s/<ll>_<CC>.<charmap><@modifiers>/en_US.UTF-8/" \
+                -e "/^localectl /s/^/: /"
+            ;;
+        chapter09/systemd-custom.html)
+            sed -e "/tmp\\.mount/,\$s/^/# /"
             ;;
         chapter09/*)
             cat
@@ -500,6 +528,13 @@ TITLE
                 ;;
             (kernel)
                 file=("${LFS}/sources/linux-"*.{bz2,gz,xz,tgz})
+                ;;
+            (systemd-custom)
+                file=()
+                break
+                ;;
+            (systemd)
+                file=("${LFS}/sources/systemd-"???.{bz2,tar.gz,xz,tgz})
                 ;;
         esac
         if [[ "${#file[@]}" -eq 1 ]]; then

@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-    set -eu
+    set -eux
 
     PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 
@@ -63,14 +63,20 @@ Vagrant.configure("2") do |config|
         mkswap /dev/sdb6
     fi
 
+    lfs_download_url=http://www.linuxfromscratch.org/lfs/downloads/10.0-systemd/
+    lfs_folder="lfs-$(basename "${lfs_download_url}")"
     cd /vagrant
-    mk lfs
-    cd lfs
-    for file in LFS-BOOK-10.0-NOCHUNKS.html LFS-BOOK-10.0.tar.xz lfs-bootscripts-20200818.tar.xz md5sums wget-list; do
-        echo Fetching $file
-        url="http://www.linuxfromscratch.org/lfs/downloads/10.0/$file"
-        [[ -f "${file}" ]] || curl --remote-name --silent -LSs "$url"
-    done
+    mk "${lfs_folder}"
+    cd "${lfs_folder}"
+    curl --silent -LSs "${lfs_download_url}" |
+        sed -n -e "/Parent Directory/,\\$p" |
+        grep -o 'href="[^"]\\+"' |
+        cut -d'"' -f2 |
+        while read -r filename; do
+            [[ "${filename}" = */* || "${filename}" = *.pdf ]] && continue
+            echo Fetching ${filename}
+            [[ -f "${filename}" ]] || curl --remote-name --silent -LSs "${lfs_download_url%/}/${filename}"
+        done
 
     mk files
     pushd files
@@ -83,9 +89,9 @@ Vagrant.configure("2") do |config|
     done
     popd
 
-    [[ -d 10.0 ]] || tar xf LFS-BOOK-10.0.tar.xz
-    lfs_source=/vagrant/lfs/10.0
-    lfs_files=/vagrant/lfs/files
+    [[ -d 10.0 ]] || tar xf LFS-BOOK-10.0*.tar.xz
+    lfs_source=/vagrant/${lfs_folder}/10.0
+    lfs_files=/vagrant/${lfs_folder}/files
 
     echo "export LFS=/mnt/lfs" > /etc/profile.d/lfs.sh
     source /etc/profile.d/lfs.sh
@@ -108,7 +114,7 @@ Vagrant.configure("2") do |config|
     mk "$LFS/sources"
 
     if [[ ! -f "${LFS}/sources/.done" ]]; then
-       cp -rv /vagrant/lfs/md5sums "${lfs_source}" "${lfs_files}"/* "${LFS}/sources"
+       cp -rv /vagrant/${lfs_folder}/md5sums "${lfs_source}" "${lfs_files}"/* "${LFS}/sources"
        chmod -v a+wt "$LFS/sources"
        touch "${LFS}/sources/.done"
     fi
@@ -161,7 +167,7 @@ Vagrant.configure("2") do |config|
     pushd "${LFS}/sources"
     md5sum --check md5sums
 
-    /vagrant/gen-lfs-script.sh /vagrant/lfs/10.0 > $LFS/sources/lfs.sh
+    /vagrant/gen-lfs-script.sh 10.0 > $LFS/sources/lfs.sh
     ls -l "$LFS/sources/lfs.sh"
   SHELL
 end
