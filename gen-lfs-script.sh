@@ -493,13 +493,15 @@ function lfs-code() (
 ######## $chapter
 
 (all|${chapter%/*}|${chapter}|${chapter}:*)
-    current_chapter="${chapter}"; echo "\$current_chapter"
+    title="${title}"
+    current_chapter="${chapter}"; echo "\$current_chapter \$title"
     build_done="\${LFS:-}/sources/${build_done}"
-    echo -e "\e[31m${chapter}\e[0m"
+    build_dir="\${LFS:-}/sources/${build_dir}"
+    echo -e "\e[31m\${title}\e[0m"
     (
     cd "\${LFS:-}/sources"
     if [[ -f "\${build_done}" ]]; then
-        echo -e "\e[33mSkipping ${chapter}\e[0m"
+        echo -e "\e[33mSkipping ${title}\e[0m"
         exit
     fi
 
@@ -548,8 +550,8 @@ TITLE
     if [[ -f "$file" ]]; then
         cat <<SCRIPT
     (all|${chapter%/*}|${chapter}|${chapter}:clean)
-    echo -e "\e[31m${chapter}:clean\e[0m"
-    [[ -d "${build_dir}" ]] && sudo rm -rf "${build_dir}"
+    echo -e "\e[31m${title}:clean\e[0m"
+    [[ -d "\${build_dir}" ]] && sudo rm -rf "\${build_dir}"
     ;;&
     (all|${chapter%/*}|${chapter}|${chapter}:run|${chapter}:extract)
     echo -e "\e[31m${chapter}:extract\e[0m"
@@ -562,20 +564,21 @@ SCRIPT
     (all|${chapter%/*}|${chapter}|${chapter}:run) (
     echo -e "\e[31m${chapter}:run \$(pwd)\e[0m"
     set -x
-# ---------------------------------------------
+# #${title} ---------------------------------------------
 
 ${script}
 
-# ---------------------------------------------
+# --------------------------------------------------------------------------
     cd \${LFS:-}/sources
-    if [[ -n "${build_dir}" ]] && [[ -d "${build_dir}" ]]; then
-        rm -rf "${build_dir}" || sudo rm -rf "${build_dir}"
+    if [[ -n "\${build_dir}" ]] && [[ -d "\${build_dir}" ]]; then
+        rm -rf "\${build_dir}" || sudo rm -rf "\${build_dir}"
     fi
     [[ -z "$file" ]] || touch "\${build_done}"
     ); ;;
     esac
 
-); ;;& ##### =========== ${chapter} ===================================
+); ;;& ##### =========== ${chapter} ${title} ===================================
+
 SCRIPT
 )
 

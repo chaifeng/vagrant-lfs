@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
                    "hdd", "--medium", lfs_disk]
   end
 
-  config.vm.provision "shell", inline: <<-SHELL
+  config.vm.provision "shell", run: 'always', preserve_order: true, inline: <<-SHELL
     set -eux
 
     PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
@@ -149,7 +149,7 @@ Vagrant.configure("2") do |config|
 
   SHELL
 
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+  config.vm.provision "shell", run: 'always', preserve_order: true, privileged: false, inline: <<-SHELL
     [[ -f ~/.bash_profile ]] && rm -v ~/.bash_profile
     echo '
     set +h
