@@ -1,6 +1,15 @@
 #!/bin/bash
 set -euo pipefail
-set -x
+
+lfs_version="10.0"
+if [[ "${1:-}" = "-h" || "${1:-}" = "--help" ]]; then
+    echo "Usage:"
+    echo "  $0"
+    echo "  $0 systemd"
+    exit 0
+elif [[ "${1:-}" = "systemd" ]]; then
+    lfs_version="${lfs_version}-systemd"
+fi
 
 function msg() {
     printf "[Vagrant LFS]: \e[32m$*\e[0m\n" >&2
@@ -8,13 +17,14 @@ function msg() {
 
 function vagrant() {
     if hash caffeinate &> /dev/null; then
-        caffeinate -sm vagrant "$@"
+        env LFS_VERSION="${lfs_version}" caffeinate -sm vagrant "$@"
     else
-        command vagrant "$@"
+        env LFS_VERSION="${lfs_version}" command vagrant "$@"
     fi
 }
 
-vmname="lfs-10.0"
+set -x
+vmname="lfs-${lfs_version}"
 
 export LC_ALL=C LANG=C LANGUAGE=C
 
@@ -29,7 +39,7 @@ fi
 msg Building LFS ...
 until vagrant ssh -c "/bin/bash /mnt/lfs/sources/lfs.sh"; do
     msg Building failed, retrying ...
-    sleep 60 || exit 0
+    vagrant ssh -c 'sleep 60' || exit 0
     vagrant reload --provision
 done
 

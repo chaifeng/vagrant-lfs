@@ -30,6 +30,14 @@ Vagrant.configure("2") do |config|
 
     PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 
+    lfs_version="#{ ENV['LFS_VERSION'] || '10.0' }"
+    echo "LFS Version: ${lfs_version}" >&2
+
+    if [[ ${lfs_version} != "10.0" && ${lfs_version} != "10.0-systemd" ]]; then
+        echo "Error: unsupported LFS version \${lfs_version}." >&2
+        exit 1
+    fi
+
     function mk() {
         for d; do
             [[ -d "$d" ]] || mkdir -pv "$d"
